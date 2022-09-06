@@ -1,0 +1,480 @@
+collections {
+   group { "elm/border/base/default"; data.item: "version" "123";
+#define BORDERLESS  1
+#define FULLSCREEN   2
+#define UNRESIZABLE 4
+#define SET_MODE(a) script { new m = get_int(border_mode); m |= (a); set_int(border_mode, m); eval_mode(m); }
+#define UNSET_MODE(a) script { new m = get_int(border_mode); m &= ~(a); set_int(border_mode, m); eval_mode(m); }
+
+      script {
+         public border_mode;
+         public eval_mode(m) {
+            if (m & (BORDERLESS | FULLSCREEN | UNRESIZABLE)) {
+               set_state(PART:"bottom_clip", "hidden", 0.0);
+               set_state(PART:"top_clip", "hidden", 0.0);
+            } else {
+               set_state(PART:"bottom_clip", "default", 0.0);
+               set_state(PART:"top_clip", "default", 0.0);
+            }
+         }
+      }
+      parts {
+         spacer { "elm.spacer.opaque";
+            desc {
+               rel1.to: "top_clip";
+               rel2.to: "bottom_clip";
+            }
+            desc { "max"; inherit: "default"; }
+         }
+         spacer { "elm.spacer.content";
+            required; // since 1.19
+            desc { "default";
+               rel1.to: "top_clip";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "bottom_clip";
+               rel2.relative: 1.0 0.0;
+            }
+            desc { "hidden";
+               inherit: "default";
+               rel1 { relative: 0.0 1.0; offset: 0 0; }
+               rel2 { relative: 1.0 1.0; offset: -1 -1; }
+               min: 0 0;
+               fixed: 0 1;
+               max: -1 0;
+            }
+         }
+        rect { "bg_clip"; nomouse;
+            desc { "default";
+               rel1.to: "top_clip";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "bottom_clip";
+            }
+         }
+         rect { "elm.rect.background";
+            required; // @since 1.19
+            clip: "bg_clip";
+            desc { "default";
+               rel.to: "elm.spacer.content";
+               visible: 0;
+            }
+            desc { "visible";
+               inherit: "default";
+               visible: 1;
+            }
+         }
+         swallow { "elm.swallow.background";
+            required; // @since 1.19
+            clip: "client_clip";
+            desc { "default";
+               rel.to: "elm.spacer.content";
+            }
+         }
+         spacer { "client_spacer";
+            desc { "default";
+               rel1.to: "top_clip";
+               rel1.relative: 0.0 1.0;
+               rel2.to: "bottom_clip";
+               rel2.relative: 1.0 0.0;
+            }
+             desc { "hidden";
+               inherit: "default";
+               rel1 { relative: 0.0 1.0; offset: 0 0; }
+               rel2 { relative: 1.0 1.0; offset: -1 -1; }
+               min: 0 0;
+               fixed: 0 1;
+               max: -1 0;
+            }
+         }
+         rect { "client_clip";
+            nomouse;
+            desc { "default";
+               rel.to: "client_spacer";
+            }
+            desc { "hidden";
+               inherit: "default";
+               rel1 { relative: 0.0 1.0; offset: 0 0; }
+               rel2 { relative: 1.0 1.0; offset: -1 -1; }
+               fixed: 0 1;
+               max: -1 0;
+               min: 0 0;
+               hid;
+            }
+         }
+         swallow { "elm.swallow.client";
+            clip: "client_clip";
+            desc { "default";
+               rel.to: "client_clip";
+            }
+            desc { "hidden";
+               rel1 { relative: 0.0 1.0; offset: 0 0; }
+               rel2 { relative: 1.0 1.0; offset: -1 -1; }
+               fixed: 0 1;
+               max: -1 0;
+               min: 0 0;
+               hid;
+            }
+         }
+         rect { "top_clip"; //nomouse;
+            scale: 1;
+            desc { "default";
+               rel2.relative: 1.0 0.0;
+               min: 0 0;
+               align: 0.0 0.0;
+               fixed: 0 1;
+               vis;
+               offscale;
+            }
+            desc { "hidden";
+               inherit: "default";
+               rel1.to: "";
+               rel2.to: "";
+               rel1.relative: 0.0 0.0;
+               rel2.relative: 1.0 0.0;
+               rel2.offset: -1 -1;
+               max: -1 0;
+               min: 0 0;
+               fixed: 0 1;
+               hid;
+            }
+         }
+         rect { "top";
+            clip: "top_clip";
+            description { state: "default" 0.0;
+               rel.to: "top_clip";
+               color:  64  64  64 255;
+            }
+            description { state: "focused" 0.0;
+               inherit: "default" 0.0;
+               color:  32  32  32 255;
+            }
+         }
+         rect { "bottom_clip";
+            scale: 1;
+            desc { "default";
+               rel1.to_y: "border.content";
+            }
+            desc { "hidden";
+               inherit: "default";
+               rel1 { relative: 0.0 1.0; offset: 0 0; }
+               rel2 { relative: 1.0 1.0; offset: 0 0; }
+               min: 0 0;
+               hid;
+            }
+         }
+         rect { "bottom";  nomouse;
+            clip: "bottom_clip";
+            desc { "default";
+               color: 64 64 64 255;
+               rel.to: "bottom_clip";
+            }
+            desc { "focused";
+               rel.to: "bottom_clip";
+               color: 32 32 32 255;
+            }
+         }
+         swallow { name: "border.content"; mouse;
+            scale: 1;
+            clip: "bottom_clip";
+            desc { "default";
+                  rel1.to_x: "elm.event.resize.bl";
+                  rel1.relative: 1.0 1.0;
+                  rel2.to_x: "elm.event.resize.br";
+                  rel2.relative: 0.0 1.0;
+                  align: 0.5 1.0;
+                  min: 0 16;
+                  visible: 1;
+                  fixed: 0 1;
+                  offscale;
+               }
+         }
+         rect { "elm.event.top";
+            desc { "default"
+               rel.to: "top";
+               color: 0 0 0 0;
+            }
+            desc { "hidden";
+               inherit: "default";
+               min: 0 0;
+               hid;
+            }
+         }
+         rect { "elm.event.bottom"; repeat;
+            desc { "default"
+               rel.to: "bottom_clip";
+               color: 0 0 0 0;
+            }
+            desc { "hidden";
+               inherit: "default";
+               min: 0 0;
+               hid;
+            }
+         }
+         rect {  "elm.event.resize.bl";
+            clip: "bottom_clip";
+            scale: 1;
+            desc { "default";
+               rel.to: "bottom_clip";
+               rel2.relative: 0.0 1.0;
+               align: 0.0 0.5;
+               aspect: 1.0 1.0; aspect_preference: VERTICAL;
+               color: 255 0 0 255; // no cc
+               fixed: 1 0;
+            }
+            desc { "hidden"; inherit: "default"; hid; }
+         }
+         rect {  "elm.event.resize.br";
+            clip: "bottom_clip";
+            scale: 1;
+            desc { "default";
+               rel.to: "bottom_clip";
+               rel1.relative: 1.0 0.0;
+               align: 1.0 0.5;
+               aspect: 1.0 1.0; aspect_preference: VERTICAL;
+               color: 255 0 0 255; // no cc
+               fixed: 1 0;
+            }
+            desc { "hidden"; inherit: "default"; hid; }
+         }
+      }
+      programs {
+         program { signal: "elm,state,borderless,on"; source: "elm";
+            action: STATE_SET "hidden";
+            targets: "top_clip" "bottom_clip";
+            after: "borderless,on";
+         }
+         program { "borderless,on"; SET_MODE(BORDERLESS); }
+         program { signal: "elm,state,borderless,off"; source: "elm";
+            action: STATE_SET "default";
+            targets: "top_clip" "bottom_clip";
+            after: "borderless,off";
+         }
+         program { "borderless,off"; UNSET_MODE(BORDERLESS); }
+         program {
+            signal: "elm,state,unresizable,on"; source: "elm";
+            SET_MODE(UNRESIZABLE);
+         }
+         program { signal: "elm,state,unresizable,off"; source: "elm";
+            UNSET_MODE(UNRESIZABLE);
+         }
+         program { signal: "elm,state,background,solid,on"; source: "elm";
+            action: STATE_SET "visible";
+            target: "elm.rect.background";
+         }
+         program { signal: "elm,state,background,solid,off"; source: "elm";
+            action: STATE_SET "default";
+            target: "elm.rect.background";
+         }
+         program { signal: "elm,action,focus"; source: "elm";
+            action: STATE_SET "focused";
+            target: "top";
+            target: "bottom";
+         }
+         program { signal: "elm,action,unfocus"; source: "elm";
+            action: STATE_SET "default";
+            target: "top";
+            target: "bottom";
+         }
+         program { signal: "elm,state,fullscreen*"; source: "elm";
+            action: STATE_SET "max";
+            target: "elm.spacer.opaque";
+         }
+         program { signal: "elm,state,fullscreen*"; source: "elm";
+            SET_MODE(FULLSCREEN);
+         }
+         program { signal: "elm,state,unfullscreen*"; source: "elm";
+            action: STATE_SET "default";
+            target: "elm.spacer.opaque";
+         }
+         program { signal: "elm,state,unfullscreen*"; source: "elm";
+            UNSET_MODE(FULLSCREEN);
+         }
+         program { signal: "elm,state,maximized"; source: "elm";
+            action: STATE_SET "hidden";
+            target: "elm.event.top";
+            target: "elm.event.bottom";
+            target: "elm.event.resize.br";
+            target: "elm.event.resize.bl";
+         }
+         program { signal: "elm,state,unmaximized"; source: "elm";
+            action: STATE_SET "default";
+            target: "elm.event.top";
+            target: "elm.event.bottom";
+            target: "elm.event.resize.br";
+            target: "elm.event.resize.bl";
+         }
+         program { signal: "elm,state,minimized"; source: "elm";
+            action: STATE_SET "hidden";
+            target: "elm.swallow.client";
+            target: "top_clip";
+            target: "client_clip";
+            target: "elm.spacer.content";
+            target: "client_spacer";
+         }
+         program { signal: "elm,state,unminimized"; source: "elm";
+            action: STATE_SET "default";
+            target: "elm.swallow.client";
+            target: "top_clip";
+            target: "client_clip";
+            target: "elm.spacer.content";
+            target: "client_spacer";
+         }
+         program { signal: "mouse,down,1"; source: "elm.event.top";
+         action: SIGNAL_EMIT "elm,action,move,start" "elm";
+         }
+         program { signal: "mouse,up,1"; source: "elm.event.top";
+            action: SIGNAL_EMIT "elm,action,move,stop" "elm";
+         }
+         program { signal: "mouse,down,1"; source: "elm.event.bottom";
+            action: SIGNAL_EMIT "elm,action,move,start" "elm";
+         }
+         program { signal: "mouse,up,1"; source: "elm.event.top";
+            action: SIGNAL_EMIT "elm,action,move,stop" "bottom";
+         }
+         program { signal: "mouse,in"; source: "elm.event.resize.bl";
+            action: SIGNAL_EMIT "elm,action,resize,show" "elm.event.resize.bl";
+         }
+         program { signal: "mouse,out"; source: "elm.event.resize.bl";
+            action: SIGNAL_EMIT "elm,action,resize,hide" "elm.event.resize.bl";
+         }
+         program { signal: "mouse,down,1"; source: "elm.event.resize.bl";
+            action: SIGNAL_EMIT "elm,action,resize,start" "elm.event.resize.bl";
+         }
+         program { signal: "mouse,in"; source: "elm.event.resize.br";
+            action: SIGNAL_EMIT "elm,action,resize,show" "elm.event.resize.br";
+         }
+         program { signal: "mouse,out"; source: "elm.event.resize.br";
+            action: SIGNAL_EMIT "elm,action,resize,hide" "elm.event.resize.br";
+         }
+         program { signal: "mouse,down,1"; source: "elm.event.resize.br";
+            action: SIGNAL_EMIT "elm,action,resize,start" "elm.event.resize.br";
+         }
+      }
+   }
+   group { "elm/layout/border/default";
+      parts {
+         swallow { "border.height";
+            desc { "default";
+               hid;
+            }
+         }
+         swallow { "elm.content";
+            desc { "default";
+               rel.to:"border.height";
+               fixed: 1 1;
+            }
+         }
+      }
+   }
+   group { "elm/button/base/border-close";
+      images {
+         set {
+            name: "i-close";
+            image {
+               image: "close-060.png" COMP;
+            }
+         }
+      }
+      parts {
+         rect { "base";
+            desc { "default";
+               color: 0 0 0 0;
+            }
+         }
+         image { "ic"; nomouse;
+            scale: 1;
+            desc { "default";
+               image.normal: "i-close";
+               min: 15 15;
+               max: 15 15;
+               color: 255 255 255 255;
+            }
+            desc { "selected";
+               inherit: "default";
+               color: 200 200 200 255;
+            }
+         }
+         rect { "event";
+            ignore_flags: ON_HOLD;
+            desc { "default";
+               color: 0 0 0 0; // no cc
+            }
+         }
+      }
+      programs {
+         program { signal: "mouse,down,1"; source: "event";
+            action: SIGNAL_EMIT "elm,action,press" "elm";
+            after: "button_click_anim";
+         }
+         program { name:   "button_click_anim";
+            action: STATE_SET "selected" 0.0;
+            target: "ic";
+         }
+         program { signal: "mouse,up,1"; source: "event";
+            action: STATE_SET "default" 0.0;
+            target: "ic";
+         }
+         program { signal: "mouse,clicked,1"; source: "event";
+            action: SIGNAL_EMIT "elm,action,click" "elm";
+         }
+      }
+   }
+   group { "elm/button/base/border-max";
+      inherit: "elm/button/base/border-close";
+      images {
+         set {
+            name: "i-arrow-u";
+            image {
+               image: "arrow-u-060.png" COMP;
+            }
+         }
+      }
+      parts {
+         image { "ic"; nomouse;
+            scale: 1;
+            desc { "default";
+               image.normal: "i-arrow-u";
+               min: 15 15;
+               max: 15 15;
+               color: 255 255 255 255;
+            }
+            desc { "selected";
+               inherit: "default";
+               color: 200 200 200 255;
+            }
+         }
+      }
+   }
+   group { "elm/button/base/border-min";
+      inherit: "elm/button/base/border-close";
+      images {
+         set {
+            name: "i-arrow-d";
+            image {
+               image: "arrow-d-060.png" COMP;
+            }
+         }
+      }
+      parts {
+         image { "ic"; nomouse;
+            scale: 1;
+            desc { "default";
+               image.normal: "i-arrow-d";
+               min: 15 15;
+               max: 15 15;
+               color: 255 255 255 255;
+            }
+            desc { "selected";
+               inherit: "default";
+               color: 200 200 200 255;
+            }
+         }
+      }
+   }
+}
+
+#undef UNRESIZABLE
+#undef BORDERLESS
+#undef FULLSCREEN
+#undef SET_MODE
+#undef UNSET_MODE
+

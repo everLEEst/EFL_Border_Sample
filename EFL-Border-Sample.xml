@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="6.5" package="EFL-Border-Sample" version="0.1.0">
+	<label>EFL-Border-Sample</label>
+	<author email="hosang12.kim@samsung.com" href="www.samsung.com">Hosang Kim</author>
+	<description>autofilld</description>
+	<ui-application appid="EFL-Border-Sample" exec="/usr/apps/EFL-Border-Sample/bin/EFL-Border-Sample" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+		<label>EFL-Border-Sample</label>
+	</ui-application>
+</manifest>
